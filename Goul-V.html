@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOUL-V Dual Layer Military Grade Encryption by MΔBUSΞ (V. 2.2.1)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f5f5f5;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .mode-selector {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            padding: 8px;
+        }
+
+        @media (min-width: 600px) {
+            .mode-selector {
+                grid-template-columns: 1fr 1fr 1fr 1fr;
+            }
+        }
+
+        .mode-btn {
+            padding: 12px 8px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .mode-btn.active {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+            color: white;
+            box-shadow: 0 5px 15px rgba(29, 78, 216, 0.3);
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #e8e8e8;
+            border-radius: 15px;
+            border-left: 4px solid #1e3a8a;
+        }
+
+        .section h3 {
+            margin-bottom: 15px;
+            color: #1a1a1a;
+            font-size: 1.3rem;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #1e3a8a;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .file-input:hover {
+            border-color: #1d4ed8;
+            background: #f5f5f5;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1a1a1a;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d0d0d0;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+            background: white;
+            color: #333;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #1e3a8a;
+            box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .encrypt-btn {
+            background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+            color: white;
+        }
+
+        .decrypt-btn {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress {
+            margin-top: 20px;
+            background: #d0d0d0;
+            border-radius: 10px;
+            overflow: hidden;
+            height: 8px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #1e3a8a, #1d4ed8);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .status {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .status.success {
+            background: rgba(75, 85, 99, 0.1);
+            color: #374151;
+            border: 1px solid rgba(75, 85, 99, 0.3);
+        }
+
+        .status.error {
+            background: rgba(107, 114, 128, 0.1);
+            color: #4b5563;
+            border: 1px solid rgba(107, 114, 128, 0.3);
+        }
+
+        .status.info {
+            background: rgba(30, 58, 138, 0.1);
+            color: #1e3a8a;
+            border: 1px solid rgba(30, 58, 138, 0.3);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .security-info {
+            background: rgba(30, 58, 138, 0.1);
+            border: 1px solid rgba(30, 58, 138, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .security-info h4 {
+            color: #1e3a8a;
+            margin-bottom: 10px;
+        }
+
+        .security-info ul {
+            color: #1e3a8a;
+            margin-left: 20px;
+        }
+
+        .security-info li {
+            margin-bottom: 5px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #d0d0d0;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: white;
+            color: #333;
+            resize: vertical;
+            font-family: inherit;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 style="font-size: 48px; font-weight: bold;">GOUL-V</h1>
+            <H3>Dual-Layer Military Grade Encryption</H3>
+            <H4>(C) 2025 - MΔBUSΞ</H4>
+        </div>
+
+        <div class="content">
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('encrypt')">Encrypt File</button>
+                <button class="mode-btn" onclick="setMode('decrypt')">Decrypt File</button>
+                <button class="mode-btn" onclick="setMode('encryptText')">Encrypt Text</button>
+                <button class="mode-btn" onclick="setMode('decryptText')">Decrypt Text</button>
+            </div>
+
+            <div class="security-info">
+                <h4>⚠️ Security Notice</h4>
+                <p>🟥 Dual-layer AES-256 encryption with independent keys</p>
+                <p>🟥 Ensure you use two different, long and secure passphrases!</p>
+                <p>🟥 Client-side processing - no data leaves your browser</p>
+            </div>
+
+            <div class="section" id="fileSection">
+                <h3>📁 File Selection</h3>
+                <input type="file" id="fileInput" class="file-input" accept="*/*">
+                <div id="fileInfo" class="status info hidden"></div>
+            </div>
+
+            <div class="section hidden" id="textSection">
+                <h3>📝 Text Input</h3>
+                <textarea id="textInput" placeholder="Enter your text here..."></textarea>
+            </div>
+
+            <div class="section hidden" id="resultSection">
+                <h3>📄 Result</h3>
+                <textarea id="resultOutput" readonly></textarea>
+                <button onclick="copyToClipboard()" style="margin-top: 10px; padding: 8px 16px; background: #1e3a8a; color: white; border: none; border-radius: 8px; cursor: pointer;">📋 Copy to Clipboard</button>
+            </div>
+
+            <div class="section">
+                <h3>🔑 First Layer Encryption</h3>
+                <div class="input-group">
+                    <label for="passphrase1">First Passphrase:</label>
+                    <input type="password" id="passphrase1" placeholder="Enter first encryption passphrase">
+                </div>
+                <div class="input-group">
+                    <label for="iterations1">PBKDF2 Iterations:</label>
+                    <input type="number" id="iterations1" value="100000" min="10000" max="1000000">
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>🔐 Second Layer Encryption</h3>
+                <div class="input-group">
+                    <label for="passphrase2">Second Passphrase:</label>
+                    <input type="password" id="passphrase2" placeholder="Enter second encryption passphrase">
+                </div>
+                <div class="input-group">
+                    <label for="iterations2">PBKDF2 Iterations:</label>
+                    <input type="number" id="iterations2" value="100000" min="10000" max="1000000">
+                </div>
+            </div>
+
+            <button id="actionBtn" class="action-btn encrypt-btn" onclick="processData()">
+                🔒 Encrypt File
+            </button>
+
+            <div class="progress hidden" id="progressContainer">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+
+            <div id="statusMessage" class="hidden"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentMode = 'encrypt';
+        let selectedFile = null;
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // File input
+            document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show/hide appropriate sections
+            const fileSection = document.getElementById('fileSection');
+            const textSection = document.getElementById('textSection');
+            const resultSection = document.getElementById('resultSection');
+
+            if (mode === 'encryptText' || mode === 'decryptText') {
+                fileSection.classList.add('hidden');
+                textSection.classList.remove('hidden');
+                resultSection.classList.remove('hidden');
+            } else {
+                fileSection.classList.remove('hidden');
+                textSection.classList.add('hidden');
+                resultSection.classList.add('hidden');
+            }
+
+            // Update action button
+            const actionBtn = document.getElementById('actionBtn');
+            if (mode === 'encrypt') {
+                actionBtn.textContent = '🔒 Encrypt File';
+                actionBtn.className = 'action-btn encrypt-btn';
+            } else if (mode === 'decrypt') {
+                actionBtn.textContent = '🔓 Decrypt File';
+                actionBtn.className = 'action-btn decrypt-btn';
+            } else if (mode === 'encryptText') {
+                actionBtn.textContent = '🔒 Encrypt Text';
+                actionBtn.className = 'action-btn encrypt-btn';
+            } else if (mode === 'decryptText') {
+                actionBtn.textContent = '🔓 Decrypt Text';
+                actionBtn.className = 'action-btn decrypt-btn';
+            }
+
+            // Clear previous results
+            hideStatus();
+            document.getElementById('resultOutput').value = '';
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                showFileInfo(file);
+            }
+        }
+
+        function showFileInfo(file) {
+            const info = document.getElementById('fileInfo');
+            const size = (file.size / 1024 / 1024).toFixed(2);
+            info.innerHTML = `
+                <strong>Selected:</strong> ${file.name}<br>
+                <strong>Size:</strong> ${size} MB<br>
+                <strong>Type:</strong> ${file.type || 'Unknown'}
+            `;
+            info.classList.remove('hidden');
+        }
+
+        async function processData() {
+            if (currentMode === 'encryptText' || currentMode === 'decryptText') {
+                await processText();
+            } else {
+                await processFile();
+            }
+        }
+
+        async function processText() {
+            const textInput = document.getElementById('textInput').value;
+            if (!textInput.trim()) {
+                showStatus('Please enter some text to process.', 'error');
+                return;
+            }
+
+            const passphrase1 = document.getElementById('passphrase1').value;
+            const passphrase2 = document.getElementById('passphrase2').value;
+            const iterations1 = parseInt(document.getElementById('iterations1').value);
+            const iterations2 = parseInt(document.getElementById('iterations2').value);
+
+            if (!passphrase1 || !passphrase2) {
+                showStatus('Please enter both passphrases.', 'error');
+                return;
+            }
+
+            if (passphrase1 === passphrase2) {
+                showStatus('For maximum security, use different passphrases for each layer.', 'error');
+                return;
+            }
+
+            try {
+                showProgress(0);
+                document.getElementById('actionBtn').disabled = true;
+
+                let result;
+                if (currentMode === 'encryptText') {
+                    result = await dualEncryptText(textInput, passphrase1, passphrase2, iterations1, iterations2);
+                    showStatus('Text encrypted successfully!', 'success');
+                } else {
+                    result = await dualDecryptText(textInput, passphrase1, passphrase2, iterations1, iterations2);
+                    showStatus('Text decrypted successfully!', 'success');
+                }
+
+                document.getElementById('resultOutput').value = result;
+
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+                console.error('Processing error:', error);
+            } finally {
+                hideProgress();
+                document.getElementById('actionBtn').disabled = false;
+            }
+        }
+
+        async function processFile() {
+            if (!selectedFile) {
+                showStatus('Please select a file first.', 'error');
+                return;
+            }
+
+            const passphrase1 = document.getElementById('passphrase1').value;
+            const passphrase2 = document.getElementById('passphrase2').value;
+            const iterations1 = parseInt(document.getElementById('iterations1').value);
+            const iterations2 = parseInt(document.getElementById('iterations2').value);
+
+            if (!passphrase1 || !passphrase2) {
+                showStatus('Please enter both passphrases.', 'error');
+                return;
+            }
+
+            if (passphrase1 === passphrase2) {
+                showStatus('For maximum security, use different passphrases for each layer.', 'error');
+                return;
+            }
+
+            try {
+                showProgress(0);
+                document.getElementById('actionBtn').disabled = true;
+
+                const fileContent = await readFileAsArrayBuffer(selectedFile);
+                let result;
+
+                if (currentMode === 'encrypt') {
+                    result = await dualEncryptFile(fileContent, passphrase1, passphrase2, iterations1, iterations2);
+                    downloadFile(result, selectedFile.name + '.denc', 'application/octet-stream');
+                    showStatus('File encrypted successfully! Download started.', 'success');
+                } else {
+                    result = await dualDecryptFile(fileContent, passphrase1, passphrase2, iterations1, iterations2);
+                    const originalName = selectedFile.name.replace('.denc', '');
+                    downloadFile(result, originalName, 'application/octet-stream');
+                    showStatus('File decrypted successfully! Download started.', 'success');
+                }
+
+            } catch (error) {
+                showStatus('Error: ' + error.message, 'error');
+                console.error('Processing error:', error);
+            } finally {
+                hideProgress();
+                document.getElementById('actionBtn').disabled = false;
+            }
+        }
+
+        function generateRandomBytes(length) {
+            const randomBytes = new Uint8Array(length);
+            crypto.getRandomValues(randomBytes);
+            return CryptoJS.lib.WordArray.create(randomBytes);
+        }
+
+        async function dualEncryptText(plaintext, pass1, pass2, iter1, iter2) {
+            showProgress(10);
+            
+            // Generate random values for first layer
+            const iv1 = generateRandomBytes(16);
+            const salt1 = generateRandomBytes(16);
+            
+            // First layer encryption
+            const key1 = CryptoJS.PBKDF2(pass1, salt1, {
+                keySize: 256 / 32,
+                iterations: iter1
+            });
+            
+            const encrypted1 = CryptoJS.AES.encrypt(plaintext, key1, {
+                iv: iv1,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            // First layer HMAC
+            const hmacKey1 = CryptoJS.PBKDF2(pass1, salt1, {
+                keySize: 256 / 32,
+                iterations: iter1
+            });
+            
+            const hmac1 = CryptoJS.HmacSHA256(encrypted1.toString(), hmacKey1);
+            
+            showProgress(40);
+            
+            // Generate random values for second layer
+            const iv2 = generateRandomBytes(16);
+            const salt2 = generateRandomBytes(16);
+            
+            // Second layer encryption
+            const key2 = CryptoJS.PBKDF2(pass2, salt2, {
+                keySize: 256 / 32,
+                iterations: iter2
+            });
+            
+            const encrypted2 = CryptoJS.AES.encrypt(encrypted1.toString(), key2, {
+                iv: iv2,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            // Second layer HMAC
+            const hmacKey2 = CryptoJS.PBKDF2(pass2, salt2, {
+                keySize: 256 / 32,
+                iterations: iter2
+            });
+            
+            const hmac2 = CryptoJS.HmacSHA256(encrypted2.toString(), hmacKey2);
+            
+            showProgress(80);
+            
+            // Create metadata
+            const metadata = {
+                version: '4.0',
+                type: 'text',
+                layer1: {
+                    iv: iv1.toString(CryptoJS.enc.Base64),
+                    salt: salt1.toString(CryptoJS.enc.Base64),
+                    iterations: iter1,
+                    hmac: hmac1.toString()
+                },
+                layer2: {
+                    iv: iv2.toString(CryptoJS.enc.Base64),
+                    salt: salt2.toString(CryptoJS.enc.Base64),
+                    iterations: iter2,
+                    hmac: hmac2.toString()
+                },
+                timestamp: Date.now()
+            };
+            
+            // Combine everything
+            const result = JSON.stringify(metadata) + '\n---ENCRYPTED-DATA---\n' + encrypted2.toString();
+            showProgress(100);
+            
+            return result;
+        }
+
+        async function dualDecryptText(encryptedText, pass1, pass2, iter1, iter2) {
+            showProgress(10);
+            
+            const parts = encryptedText.split('\n---ENCRYPTED-DATA---\n');
+            if (parts.length !== 2) {
+                throw new Error('Invalid encrypted text format');
+            }
+            
+            const metadata = JSON.parse(parts[0]);
+            const encryptedData = parts[1];
+            
+            showProgress(20);
+            
+            // Verify second layer HMAC
+            const hmacKey2 = CryptoJS.PBKDF2(pass2, CryptoJS.enc.Base64.parse(metadata.layer2.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer2.iterations
+            });
+            
+            const calculatedHmac2 = CryptoJS.HmacSHA256(encryptedData, hmacKey2).toString();
+            if (calculatedHmac2 !== metadata.layer2.hmac) {
+                throw new Error('Second layer HMAC verification failed - data may be corrupted');
+            }
+            
+            showProgress(30);
+            
+            // Decrypt second layer
+            const key2 = CryptoJS.PBKDF2(pass2, CryptoJS.enc.Base64.parse(metadata.layer2.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer2.iterations
+            });
+            
+            const decrypted2 = CryptoJS.AES.decrypt(encryptedData, key2, {
+                iv: CryptoJS.enc.Base64.parse(metadata.layer2.iv),
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            const layer1Data = decrypted2.toString(CryptoJS.enc.Utf8);
+            if (!layer1Data) {
+                throw new Error('Second layer decryption failed - incorrect passphrase or corrupted data');
+            }
+            
+            showProgress(60);
+            
+            // Verify first layer HMAC
+            const hmacKey1 = CryptoJS.PBKDF2(pass1, CryptoJS.enc.Base64.parse(metadata.layer1.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer1.iterations
+            });
+            
+            const calculatedHmac1 = CryptoJS.HmacSHA256(layer1Data, hmacKey1).toString();
+            if (calculatedHmac1 !== metadata.layer1.hmac) {
+                throw new Error('First layer HMAC verification failed - data may be corrupted');
+            }
+            
+            showProgress(70);
+            
+            // Decrypt first layer
+            const key1 = CryptoJS.PBKDF2(pass1, CryptoJS.enc.Base64.parse(metadata.layer1.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer1.iterations
+            });
+            
+            const decrypted1 = CryptoJS.AES.decrypt(layer1Data, key1, {
+                iv: CryptoJS.enc.Base64.parse(metadata.layer1.iv),
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            const plaintext = decrypted1.toString(CryptoJS.enc.Utf8);
+            if (!plaintext) {
+                throw new Error('First layer decryption failed - incorrect passphrase or corrupted data');
+            }
+            
+            showProgress(100);
+            return plaintext;
+        }
+
+        async function dualEncryptFile(data, pass1, pass2, iter1, iter2) {
+            showProgress(10);
+            
+            // Convert ArrayBuffer to WordArray
+            const wordArray = CryptoJS.lib.WordArray.create(data);
+            const plaintext = wordArray.toString(CryptoJS.enc.Base64);
+            
+            showProgress(20);
+            
+            // Generate random values for first layer
+            const iv1 = generateRandomBytes(16);
+            const salt1 = generateRandomBytes(16);
+            
+            // First layer encryption
+            const key1 = CryptoJS.PBKDF2(pass1, salt1, {
+                keySize: 256 / 32,
+                iterations: iter1
+            });
+            
+            const encrypted1 = CryptoJS.AES.encrypt(plaintext, key1, {
+                iv: iv1,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            // First layer HMAC
+            const hmacKey1 = CryptoJS.PBKDF2(pass1, salt1, {
+                keySize: 256 / 32,
+                iterations: iter1
+            });
+            
+            const hmac1 = CryptoJS.HmacSHA256(encrypted1.toString(), hmacKey1);
+            
+            showProgress(40);
+            
+            // Generate random values for second layer
+            const iv2 = generateRandomBytes(16);
+            const salt2 = generateRandomBytes(16);
+            
+            // Second layer encryption
+            const key2 = CryptoJS.PBKDF2(pass2, salt2, {
+                keySize: 256 / 32,
+                iterations: iter2
+            });
+            
+            const encrypted2 = CryptoJS.AES.encrypt(encrypted1.toString(), key2, {
+                iv: iv2,
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            // Second layer HMAC
+            const hmacKey2 = CryptoJS.PBKDF2(pass2, salt2, {
+                keySize: 256 / 32,
+                iterations: iter2
+            });
+            
+            const hmac2 = CryptoJS.HmacSHA256(encrypted2.toString(), hmacKey2);
+            
+            showProgress(80);
+            
+            // Create metadata
+            const metadata = {
+                version: '4.0',
+                type: 'file',
+                layer1: {
+                    iv: iv1.toString(CryptoJS.enc.Base64),
+                    salt: salt1.toString(CryptoJS.enc.Base64),
+                    iterations: iter1,
+                    hmac: hmac1.toString()
+                },
+                layer2: {
+                    iv: iv2.toString(CryptoJS.enc.Base64),
+                    salt: salt2.toString(CryptoJS.enc.Base64),
+                    iterations: iter2,
+                    hmac: hmac2.toString()
+                },
+                timestamp: Date.now()
+            };
+            
+            // Combine everything
+            const result = JSON.stringify(metadata) + '\n---ENCRYPTED-DATA---\n' + encrypted2.toString();
+            showProgress(100);
+            
+            return new TextEncoder().encode(result);
+        }
+
+        async function dualDecryptFile(data, pass1, pass2, iter1, iter2) {
+            showProgress(10);
+            
+            const textData = new TextDecoder().decode(data);
+            const parts = textData.split('\n---ENCRYPTED-DATA---\n');
+            
+            if (parts.length !== 2) {
+                throw new Error('Invalid encrypted file format');
+            }
+            
+            const metadata = JSON.parse(parts[0]);
+            const encryptedData = parts[1];
+            
+            showProgress(20);
+            
+            // Verify second layer HMAC
+            const hmacKey2 = CryptoJS.PBKDF2(pass2, CryptoJS.enc.Base64.parse(metadata.layer2.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer2.iterations
+            });
+            
+            const calculatedHmac2 = CryptoJS.HmacSHA256(encryptedData, hmacKey2).toString();
+            if (calculatedHmac2 !== metadata.layer2.hmac) {
+                throw new Error('Second layer HMAC verification failed - data may be corrupted');
+            }
+            
+            showProgress(30);
+            
+            // Decrypt second layer
+            const key2 = CryptoJS.PBKDF2(pass2, CryptoJS.enc.Base64.parse(metadata.layer2.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer2.iterations
+            });
+            
+            const decrypted2 = CryptoJS.AES.decrypt(encryptedData, key2, {
+                iv: CryptoJS.enc.Base64.parse(metadata.layer2.iv),
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            const layer1Data = decrypted2.toString(CryptoJS.enc.Utf8);
+            if (!layer1Data) {
+                throw new Error('Second layer decryption failed - incorrect passphrase or corrupted data');
+            }
+            
+            showProgress(60);
+            
+            // Verify first layer HMAC
+            const hmacKey1 = CryptoJS.PBKDF2(pass1, CryptoJS.enc.Base64.parse(metadata.layer1.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer1.iterations
+            });
+            
+            const calculatedHmac1 = CryptoJS.HmacSHA256(layer1Data, hmacKey1).toString();
+            if (calculatedHmac1 !== metadata.layer1.hmac) {
+                throw new Error('First layer HMAC verification failed - data may be corrupted');
+            }
+            
+            showProgress(70);
+            
+            // Decrypt first layer
+            const key1 = CryptoJS.PBKDF2(pass1, CryptoJS.enc.Base64.parse(metadata.layer1.salt), {
+                keySize: 256 / 32,
+                iterations: metadata.layer1.iterations
+            });
+            
+            const decrypted1 = CryptoJS.AES.decrypt(layer1Data, key1, {
+                iv: CryptoJS.enc.Base64.parse(metadata.layer1.iv),
+                mode: CryptoJS.mode.CBC,
+                padding: CryptoJS.pad.Pkcs7
+            });
+            
+            const base64Data = decrypted1.toString(CryptoJS.enc.Utf8);
+            if (!base64Data) {
+                throw new Error('First layer decryption failed - incorrect passphrase or corrupted data');
+            }
+            
+            showProgress(90);
+            
+            // Convert back to ArrayBuffer
+            const binaryString = atob(base64Data);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            
+            showProgress(100);
+            return bytes.buffer;
+        }
+
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function downloadFile(data, filename, mimeType) {
+            const blob = new Blob([data], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function showProgress(percent) {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            
+            container.classList.remove('hidden');
+            bar.style.width = percent + '%';
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').classList.add('hidden');
+        }
+
+        function showStatus(message, type) {
+            const status = document.getElementById('statusMessage');
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.classList.remove('hidden');
+        }
+
+        function hideStatus() {
+            document.getElementById('statusMessage').classList.add('hidden');
+        }
+
+        function copyToClipboard() {
+            const resultText = document.getElementById('resultOutput').value;
+            if (resultText) {
+                navigator.clipboard.writeText(resultText).then(() => {
+                    showStatus('Copied to clipboard!', 'success');
+                }).catch(() => {
+                    // Fallback for older browsers
+                    document.getElementById('resultOutput').select();
+                    document.execCommand('copy');
+                    showStatus('Copied to clipboard!', 'success');
+                });
+            }
+        }
+    </script>
+</body>
+</html>
