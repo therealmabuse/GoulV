@@ -7,6 +7,8 @@ GOUL-V is a client-side, dual-layer military grade encryption tool that provides
 Just drag the GOUL-V file onto a flash drive and you've got powerful encryption anywhere - no install needed, works on any computer.
 Super easy to use - if you can click buttons and type passwords, you can keep your files locked down tight. No tech skills required!
 
+This tool is made to encrypt small files, images and text. Not really suitable for huge files!
+
 ## Key Features
 
 🔒 Dual-Layer AES-256 Encryption
